@@ -11,6 +11,30 @@ const { JsonCache } = require('./cache')
 const { getErrorStatus, isPermanentQuotaError, withGeminiRetry } = require('./gemini')
 
 const app = express()
+
+const allowedOrigins = new Set([
+  'http://localhost:5173',
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+])
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin
+
+  if (origin && allowedOrigins.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+    res.setHeader('Vary', 'Origin')
+  }
+
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204)
+  }
+
+  next()
+})
+
 const port = Number(process.env.PORT) || 3001
 const dataDirectory = path.resolve(process.env.DATA_DIR || path.join(__dirname, 'data'))
 const usersDirectory = path.join(dataDirectory, 'users')
@@ -745,7 +769,7 @@ async function start() {
   await fs.mkdir(usersDirectory, { recursive: true })
   await fs.mkdir(uploadsDirectory, { recursive: true })
   await fs.mkdir(cacheDirectory, { recursive: true })
-  app.listen(port, () => {
+  app.listen(port, '0.0.0.0', () => {
     console.log(`CropDoctor API listening on http://localhost:${port}`)
   })
 }

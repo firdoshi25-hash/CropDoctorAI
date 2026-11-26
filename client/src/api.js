@@ -1,7 +1,9 @@
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')
+
 async function request(path, options = {}) {
   let response
   try {
-    response = await fetch(path, { ...options, signal: options.signal || AbortSignal.timeout(90000) })
+    response = await fetch(`${API_BASE_URL}${path}`, { ...options, signal: options.signal || AbortSignal.timeout(90000) })
   } catch (error) {
     if (error.name === 'TimeoutError' || error.name === 'AbortError') {
       throw new Error('The request took too long. Check your connection and try again.')
