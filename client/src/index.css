@@ -1,0 +1,17 @@
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: #f3f7ef;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #218348;
+  outline-offset: 2px;
+}
